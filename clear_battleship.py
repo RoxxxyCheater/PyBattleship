@@ -7,11 +7,10 @@ ships_name, teams = ["трёхпалубного", "двухпалубного",
 coord_bool = True
 
 def game_input(ship_name, team):
-    print(ship_name)
     while True:
         if len(backfield) < 20:
             player_move = input(
-                f"{playername} Введите кординаты местоположения {team} {ship_name} корабля в формате (1 1) "
+                f"{playername}, Введите кординаты местоположения {team} {ship_name} корабля в формате (1 1) "
                 f"через пробел: ").split()
             if len(player_move) != 2:
                 print("Введите кординаты в формате (1 1) через пробел!")
@@ -24,7 +23,7 @@ def game_input(ship_name, team):
                 print("Подсказка: Введите кординаты цыфрами от 1 до 6")
                 continue
             else:
-                return xp, yp
+                return [xp, yp]
         else:
             print(f"Многоуя кораблей")
             continue
@@ -186,7 +185,7 @@ import random
 def battleship(count_shoots):
     ships_count = 0
     while True:
-        coordinates = [random.randint(1, 6), random.randint(1, 6)]  # game_input(ships_name[ships_count], teams[0])
+        coordinates = game_input("", teams[1])
         count_shoots.append(coordinates)
         backfield_x = [i for sub in backfield for i in sub]
         count_x = sum(True for i in backfield_x if i == '| X')
@@ -204,7 +203,7 @@ def battleship(count_shoots):
                     continue
                 else:
                     print(
-                        f"{playername}, Для заполнения , {ships_name} корабля заполните три клетки подряд с одинаковым "
+                        f"{playername}, Для заполнения , {ships_name[ships_count]} корабля заполните три клетки подряд с одинаковым "
                         f"цифровым значением то горизонтали или вертикали")
         elif len(count_shoots) < 8:
             if get_ship_placement(coordinates, count_shoots):
@@ -226,7 +225,7 @@ def battleship(count_shoots):
                     continue
                 else:
                     print(
-                        f"{playername}, Для заполнения , {ships_name} корабля заполните 2 клетки подряд с одинаковым "
+                        f"{playername}, Для заполнения , {ships_name[ships_count]} корабля заполните 2 клетки подряд с одинаковым "
                         f"цифровым значением то горизонтали или вертикали")
             else:
                 count_shoots.pop(-1)
@@ -244,7 +243,7 @@ def battleship(count_shoots):
                     pass
                 else:
                     print(
-                        f"{playername}, Для заполнения , {ships_name} корабля заполните клетки "
+                        f"{playername}, Для заполнения , {ships_name[ships_count]} корабля заполните клетки "
                         f"цифровым значением то горизонтали или вертикали")
             else:
                 count_shoots.pop(-1)
@@ -288,18 +287,22 @@ def main_game():
     print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
     while True:
         vyvod(field)
-        shoot = [random.randint(1, 6), random.randint(1, 6)]
+        shoot = list(game_input("", teams[1]))
+        shoot_bot = [random.randint(1, 6), random.randint(1, 6)]
         x, y = map(int, shoot)
         if ships > 0:
             shoots_count += 1
             if field[x][y] == f"| {icons[0]}" or field[x][y] == f"| {icons[2]}":
                 shoots_count -= 1
+                print(f"Кординаты {shoot} уже вводились")
                 continue
             field[x][y] = f"| {icons[0]}"
             if list(shoot) not in ships_coord:
+                print("Miss")
                 pass
             elif list(shoot) in ships_coord:
                 shoots.append([x, y])
+                print("Hit",shoot, ships_coord)
                 if all((ships_coord[0] in shoots, ships_coord[1] in shoots, ships_coord[2] in shoots)):
                     back_field_setter_set((ships_coord[0], ships_coord[1], ships_coord[2]))
                     ships -= 1
