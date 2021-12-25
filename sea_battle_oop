@@ -1,0 +1,263 @@
+import random
+from random import randint
+
+
+class Pip:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __eq__(self, arg):
+        return self.x == arg.x and self.y == arg.y
+
+    def __repr__(self):
+        return f"[{self.x},{self.y}]"
+
+
+class Ships:
+    H, V, COUNT, icons = 7, 8, 0, ["*", "#", "X"]  # ВРЕМЕННЫЙ ВЫВОД
+
+    def __init__(self):
+        self.coordinates = []
+        self.busy_pips = []
+        self.ship_coordinates = []
+        self.field = [[f"| 0"] * 7 for _ in range(1, 8)]  # ВРЕМЕННЫЙ ВЫВОД
+
+    def coordinates_setter(self, set_value):
+        self.coordinates = set_value
+        return self.coordinates
+
+    @staticmethod
+    def square_around(ship_coordinates):
+        square_around_point = []
+        for i in ship_coordinates:
+            x, y = map(int, i)
+            square_range_y = range(y - 1, y + 2)
+            square_range_x = range(x - 1, x + 2)
+            for yi in square_range_y:
+                for xj in square_range_x:
+                    if any((yi == 7, xj == 7, yi == 0, xj == 0)):  # отсекаем овер значения
+                        pass
+                    elif [xj, yi] not in square_around_point:
+                        square_around_point.append([xj, yi])
+                    else:
+                        pass
+        return square_around_point
+
+    @property
+    def check_ship(self):
+        if self.coordinates in self.ship_coordinates:
+            return False #Убрать, с помощью написания не повторения координат
+        x, y = map(int, self.coordinates)
+        self.ship_coordinates.append(self.coordinates)
+        count_shoots_list = [i for sublist in self.ship_coordinates for i in sublist]
+        pos = [[*range(1, 4)], [*range(2, 5)], [*range(3, 6)], [*range(4, 7)]]
+        pos_x = count_shoots_list[::2]  # iksy
+        pos_y = count_shoots_list[1::2]  # igriky
+        while True:
+            if len(self.ship_coordinates) < 4 and self.coordinates not in self.busy_pips:
+                if all((x in pos_x, y in range(y - 1, y + 2))) or any((y in pos_y, x in range(x - 1, x + 2))):
+                    if len(self.ship_coordinates) < 2:
+                        break
+                    elif len(self.ship_coordinates) == 2 and (
+                            [pos_x[0]] * len(pos_x) == pos_x and y in range(pos_y[0] - 1, pos_y[0] + 2)) or [
+                        pos_y[0]] * len(pos_y) == pos_y and x in range(pos_x[0] - 1, pos_x[0] + 2):
+                        break
+                    elif len(self.ship_coordinates) == 2:
+                        self.ship_coordinates.pop()
+                        break
+                    elif len(self.ship_coordinates) == 3 and any(
+                            ((pos_y.sort() in pos or pos_y in pos[::-1]) and ([pos_x[0]] * len(pos_x) == pos_x),
+                             (pos_x.sort() in pos or pos_x in pos[::-1]) and ([pos_y[0]] * len(pos_y) == pos_y))):
+                        self.busy_pips = self.square_around(self.ship_coordinates)
+                        print("Trechpalubnik", self.busy_pips)
+                        return self.ship_coordinates  # Проверка на трёхпалубник пройдена
+                        break
+                    elif len(self.ship_coordinates) == 3:
+                        self.ship_coordinates.pop()
+                        print(self.ship_coordinates, "Final")
+                        break
+                else:
+                    print("Введите 3 пары кординат")
+                    break
+            if len(self.ship_coordinates) < 8 and self.coordinates not in self.busy_pips:
+                print("Dvuchpalubnik", [self.busy_pips, self.ship_coordinates])
+                if len(self.ship_coordinates) == 4:
+                    break
+                if all((len(self.ship_coordinates) == 5, (
+                                                                 pos_x[3] == pos_x[4] and y in range(pos_y[3] - 1,
+                                                                                                     pos_y[3] + 2)) or
+                                                         pos_y[3] == pos_y[4] and x in range(
+                    pos_x[3] - 1, pos_x[3] + 2))):
+                    print("1st dvuchpalubnik")
+                    self.busy_pips = self.square_around(self.ship_coordinates)
+                    return self.ship_coordinates
+                elif len(self.ship_coordinates) == 5:
+                    self.ship_coordinates.pop()
+                    break
+                if len(self.ship_coordinates) == 6:
+                    break
+                if all((len(self.ship_coordinates) == 7, (
+                                                                 pos_x[5] == pos_x[
+                                                             6] and y in range(
+                                                             pos_y[5] - 1, pos_y[5] + 2)) or
+                                                         pos_y[
+                                                             5] ==
+                                                         pos_y[6] and x in range(
+                    pos_x[5] - 1,
+                    pos_x[5] + 2))):
+                    self.busy_pips = self.square_around(self.ship_coordinates)
+                    return self.ship_coordinates
+                elif len(self.ship_coordinates) == 7:
+                    self.ship_coordinates.pop()
+                    break
+                else:
+                    self.ship_coordinates.pop(len(self.ship_coordinates) - 1)
+                    return False
+            if len(self.ship_coordinates) < 11 and self.coordinates not in self.busy_pips:
+                self.busy_pips = self.square_around(self.ship_coordinates)
+                print("busy ships", len(self.busy_pips))
+                return self.ship_coordinates
+            if len(self.ship_coordinates) == 11 and self.coordinates not in self.busy_pips:
+                print("Rasstanovka okonchena")
+                self.busy_pips = self.square_around(self.ship_coordinates)
+                return self.ship_coordinates
+            elif any((len(self.ship_coordinates) == 10,len(self.ship_coordinates) == 11)) and len(self.busy_pips) == 36:
+                print(len(self.busy_pips),"Некуда ставить 10")
+                print(len(self.busy_pips), "Некуда ставить 11")
+                self.ship_coordinates = []
+                self.busy_pips = []
+            elif len(self.ship_coordinates) > 11:
+                self.ship_coordinates.pop()
+                print(len(self.busy_pips), "Лишний")
+                print(self.ship_coordinates)
+                break
+            else:
+                print(len(self.ship_coordinates), len(self.busy_pips), self.coordinates, "LAGAET")
+                self.ship_coordinates.pop()
+                break
+
+    # @property
+    # def battleship(self):
+
+    #     ships_count = 0,
+    #     ships_coordinates = []
+    #     while True:
+    #         if self.player_name == "Противник":
+    #             self.coordinates = self.bot_coordinates()
+    #             print(self.coordinates, 'if self.name == "Противник"')
+    #         else:
+    #             self.coordinates = self.user_coordinates()
+    #             print(self.coordinates, 'if self.name == "USER"')
+    #             b.printing_field()
+    #         print(self.count_shoots, self.name)
+    #         self.count_shoots.append(self.coordinates)
+    #         print(self.count_shoots, "после добавления")
+    #         backfield_x = [i for sub in self.backfield for i in sub]
+    #         count_x = sum(True for i in backfield_x if i == '| X')
+    #         if len(self.count_shoots) < 4:
+    #             if self.get_ship_placement():
+    #                 if self.check_ship():
+    #                     print(self.coordinates)
+    #                 if len(self.count_shoots) == 3:
+    #                     ships_count += 1
+    #                     continue
+    #                 else:
+    #                     print(
+    #                         f"{self.name}, Для заполнения , {ships_name} корабля заполните три клетки подряд  "
+    #                         f" с одинаковым цифровым значением то горизонтали или вертикали")
+    #         elif len(self.count_shoots) < 8:
+    #             if self.get_ship_placement():
+    #                 if self.check_ship():
+    #                     b.set_coordinates()
+    #                     b.back_field_setter_set()
+    #                 if len(self.count_shoots) == 5:
+    #                     ships_count += 1
+    #                     continue
+    #                 if len(self.count_shoots) == 7:
+    #                     b.back_field_setter_set()
+    #                     ships_count += 1
+    #                     continue
+    #                 else:
+    #                     print(
+    #                         f"{self.name}, Для заполнения,{ships_name} корабля заполните 2 клетки подряд с одинаковым "
+    #                         f"цифровым значением то горизонтали или вертикали")
+    #             else:
+    #                 self.count_shoots.pop(-1)
+    #                 continue
+    #         elif len(self.count_shoots) < 11 and count_x < 36:
+    #             if self.get_ship_placement():
+    #                 if self.check_ship():
+    #                     b.set_coordinates()
+    #                     b.back_field_setter_set()
+    #                     ships_count += 1
+    #                     continue
+    #                 elif len(self.count_shoots) == range(8, 12):
+    #                     b.back_field_setter_set()
+    #                     pass
+    #                 else:
+    #                     print(
+    #                         f"{self.name}, Для заполнения , {ships_name} корабля заполните клетки "
+    #                         f"цифровым значением то горизонтали или вертикали")
+    #             else:
+    #                 print("Siuda")
+    #                 self.count_shoots.pop(-1)
+    #                 continue
+    #         elif len(self.count_shoots) == 11 and self.get_ship_placement():
+    #             print("Rasstanovka okonchena", self.count_shoots)
+    #             b.set_coordinates()
+    #             ships_count += 1
+    #             b.back_field_setter_set()
+    #             return self.count_shoots
+    #         elif len(self.count_shoots) == 11 and count_x < 36:
+    #             print(f"Кординаты {len(self.count_shoots)} клетки не прошли проверку,повторите ввод")
+    #             self.count_shoots.pop(-1)
+    #         else:
+    #             print(
+    #                 "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+    #             print("При данном расположении кораблей невозможно продолжить игру, начните расстановку заново")
+    #             print(
+    #                 "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+    #             return False
+
+    # a = Ships([2,1])
+    # b = Ships([5,5])
+    # c = Ships([3,2])
+    # a.check_ship()
+    # b.check_ship()
+    # c.check_ship()
+    def set_cordinats(self):  # ВРЕМЕННЫЙ ВЫВОД
+        for i in self.ship_coordinates:
+            self.battleship_printing(i)
+
+    def battleship_printing(self, coor):  # Назначениекординат #ВРЕМЕННЫЙ ВЫВОД
+        x, y = map(int, coor)
+        self.field[x][y] = f"| X"
+
+    def vyvod(self):  # ВРЕМЕННЫЙ ВЫВОД
+        print("___________________________")
+        print("\n______Поле Игрока_____")
+        print("    1   2   3   4   5   6")
+        # specialHandling =
+        for i in range(1, 7):
+            tas = self.field[i]
+            self.field[i][0] = i
+            print(*self.field[i], "|")
+            if tas[0] != "| 0 ":
+                continue
+        return self.field
+
+
+a = Ships()
+
+
+def call():
+    # for i in range(1, 200):
+    for i in range(1, 1900):
+        a.coordinates_setter([random.randint(1, 6), random.randint(1, 6)])
+        print(a.check_ship)
+    a.set_cordinats()  # ВРЕМЕННЫЙ ВЫВОД
+    a.vyvod()  # ВРЕМЕННЫЙ ВЫВОД
+
+
+call()
