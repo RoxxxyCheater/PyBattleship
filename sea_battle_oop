@@ -54,8 +54,9 @@ class Ships:
             return square_around_point
 
     def check_ship(self):
-        if self.coordinates in self.ship_coordinates:
+        if self.coordinates in self.busy_pips or self.coordinates in self.ship_coordinates:
             return False  # Убрать, с помощью написания не повторения координат
+        # print(self.coordinates in self.ship_coordinates, self.coordinates in self.busy_pips, "fucking shit!!!!!!")
         x, y = map(int, self.coordinates)
         self.ship_coordinates.append(self.coordinates)
         count_shoots_list = [i for sublist in self.ship_coordinates for i in sublist]
@@ -396,7 +397,7 @@ class Player(PlayerMoves):
 
 class MainGame:
     def __init__(self):
-        self.call_count = int(input("Для автоматического расположения кораблей нажмите '0'/ для ручного расположения 1: "))
+        self.call_count = int(input("Для автоматического расположения кораблей нажмите '0' для ручного расположения 1: "))
         player_board = self.create_board()
         self.call_count = 0
         bot_board = self.create_board()
@@ -418,19 +419,19 @@ class MainGame:
         ships_name = ["трёхпалубного", "двухпалубного", "двухпалубного", "однопалубного", "однопалубного",
                       "однопалубного", "однопалубного", "однопалубного"]
         while True:
-            if ships_placement and len(ships_placement.ship_coordinates_getter()) == 11:
-                print("Breakpoint", ships_placement.ship_coordinates_getter())
-                user_field.set_coordinates(ships_placement.ship_coordinates_getter())
-                return user_field
             if self.call_count:
                 coordinates = Board.input_error(input(f'Введите координаты для расположения вашего {ships_name[ships_placement.count_ships]} корабля: ').split())
                 if coordinates:
-                    user_field.field[coordinates[0]][coordinates[1]] = user_field.icons[1]
+                    # user_field.field[coordinates[0]][coordinates[1]] = user_field.icons[1]
                     ships_placement.coordinates_setter(coordinates)
                 else:
                     continue
             else:
                 ships_placement.coordinates_setter([randint(1, 6), randint(1, 6)])
+            if ships_placement and len(ships_placement.ship_coordinates_getter()) == 11:
+                print("Breakpoint", ships_placement.ship_coordinates_getter())
+                user_field.set_coordinates(ships_placement.ship_coordinates_getter())
+                return user_field
 
 
     def game(self):
