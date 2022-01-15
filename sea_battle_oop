@@ -1,5 +1,6 @@
-import random
+# import random
 from random import randint
+from time import sleep
 
 
 class Pip:
@@ -15,39 +16,46 @@ class Pip:
 
 
 class Ships:
-    H, V, COUNT, icons = 7, 8, 0, ["*", "#", "X"]  # ВРЕМЕННЫЙ ВЫВОД
 
     def __init__(self):
         self.coordinates = []
         self.busy_pips = []
         self.ship_coordinates = []
-        self.field = [[f"| 0"] * 7 for _ in range(1, 8)]  # ВРЕМЕННЫЙ ВЫВОД
+        self.count_ships = 0
 
     def coordinates_setter(self, set_value):
         self.coordinates = set_value
+        self.check_ship()
         return self.coordinates
+
+    def ship_coordinates_getter(self):
+        return self.ship_coordinates
 
     @staticmethod
     def square_around(ship_coordinates):
-        square_around_point = []
-        for i in ship_coordinates:
-            x, y = map(int, i)
-            square_range_y = range(y - 1, y + 2)
-            square_range_x = range(x - 1, x + 2)
-            for yi in square_range_y:
-                for xj in square_range_x:
-                    if any((yi == 7, xj == 7, yi == 0, xj == 0)):  # отсекаем овер значения
-                        pass
-                    elif [xj, yi] not in square_around_point:
-                        square_around_point.append([xj, yi])
-                    else:
-                        pass
-        return square_around_point
+        if ship_coordinates:
+            square_around_point = []
+            for i in ship_coordinates:
+                print(ship_coordinates, "ship_coordinates")
+                print(i)
+                x, y = i[0], i[1]
+                print(x, y, i)
+                square_range_y = range(y - 1, y + 2)
+                square_range_x = range(x - 1, x + 2)
+                for yi in square_range_y:
+                    for xj in square_range_x:
+                        if any((yi == 7, xj == 7, yi == 0, xj == 0)):  # отсекаем овер значения
+                            pass
+                        elif [xj, yi] not in square_around_point:
+                            square_around_point.append([xj, yi])
+                        else:
+                            pass
+            print("square_around_point", square_around_point)
+            return square_around_point
 
-    @property
     def check_ship(self):
         if self.coordinates in self.ship_coordinates:
-            return False #Убрать, с помощью написания не повторения координат
+            return False  # Убрать, с помощью написания не повторения координат
         x, y = map(int, self.coordinates)
         self.ship_coordinates.append(self.coordinates)
         count_shoots_list = [i for sublist in self.ship_coordinates for i in sublist]
@@ -70,18 +78,17 @@ class Ships:
                             ((pos_y.sort() in pos or pos_y in pos[::-1]) and ([pos_x[0]] * len(pos_x) == pos_x),
                              (pos_x.sort() in pos or pos_x in pos[::-1]) and ([pos_y[0]] * len(pos_y) == pos_y))):
                         self.busy_pips = self.square_around(self.ship_coordinates)
-                        print("Trechpalubnik", self.busy_pips)
+                        self.count_ships += 1
                         return self.ship_coordinates  # Проверка на трёхпалубник пройдена
-                        break
+                        # break
                     elif len(self.ship_coordinates) == 3:
+                        print("Введите 3 пары кординат подряд по горизонтали или вертикали")
                         self.ship_coordinates.pop()
-                        print(self.ship_coordinates, "Final")
                         break
                 else:
-                    print("Введите 3 пары кординат")
+                    print("Введите 3 пары кординат подряд по горизонтали или вертикали")
                     break
             if len(self.ship_coordinates) < 8 and self.coordinates not in self.busy_pips:
-                print("Dvuchpalubnik", [self.busy_pips, self.ship_coordinates])
                 if len(self.ship_coordinates) == 4:
                     break
                 if all((len(self.ship_coordinates) == 5, (
@@ -89,10 +96,11 @@ class Ships:
                                                                                                      pos_y[3] + 2)) or
                                                          pos_y[3] == pos_y[4] and x in range(
                     pos_x[3] - 1, pos_x[3] + 2))):
-                    print("1st dvuchpalubnik")
                     self.busy_pips = self.square_around(self.ship_coordinates)
+                    self.count_ships += 1
                     return self.ship_coordinates
                 elif len(self.ship_coordinates) == 5:
+                    print("Введите 2 пары кординат подряд по горизонтали или вертикали")
                     self.ship_coordinates.pop()
                     break
                 if len(self.ship_coordinates) == 6:
@@ -107,33 +115,34 @@ class Ships:
                     pos_x[5] - 1,
                     pos_x[5] + 2))):
                     self.busy_pips = self.square_around(self.ship_coordinates)
+                    self.count_ships += 1
                     return self.ship_coordinates
                 elif len(self.ship_coordinates) == 7:
+                    print("Введите 2 пары кординат подряд по горизонтали или вертикали")
                     self.ship_coordinates.pop()
                     break
                 else:
+                    print(self.ship_coordinates)
                     self.ship_coordinates.pop(len(self.ship_coordinates) - 1)
+                    print(self.ship_coordinates)
                     return False
             if len(self.ship_coordinates) < 11 and self.coordinates not in self.busy_pips:
                 self.busy_pips = self.square_around(self.ship_coordinates)
-                print("busy ships", len(self.busy_pips))
+                self.count_ships += 1
                 return self.ship_coordinates
             if len(self.ship_coordinates) == 11 and self.coordinates not in self.busy_pips:
-                print("Rasstanovka okonchena")
+                print("Корабли успешно расположены!")
                 self.busy_pips = self.square_around(self.ship_coordinates)
                 return self.ship_coordinates
-            elif any((len(self.ship_coordinates) == 10,len(self.ship_coordinates) == 11)) and len(self.busy_pips) == 36:
-                print(len(self.busy_pips),"Некуда ставить 10")
-                print(len(self.busy_pips), "Некуда ставить 11")
+            elif any((len(self.ship_coordinates) == 10, len(self.ship_coordinates) == 11)) and len(
+                    self.busy_pips) == 36:
                 self.ship_coordinates = []
                 self.busy_pips = []
             elif len(self.ship_coordinates) > 11:
                 self.ship_coordinates.pop()
-                print(len(self.busy_pips), "Лишний")
-                print(self.ship_coordinates)
+                self.count_ships -= 1
                 break
             else:
-                print(len(self.ship_coordinates), len(self.busy_pips), self.coordinates, "LAGAET")
                 self.ship_coordinates.pop()
                 break
 
@@ -226,38 +235,249 @@ class Ships:
     # a.check_ship()
     # b.check_ship()
     # c.check_ship()
-    def set_cordinats(self):  # ВРЕМЕННЫЙ ВЫВОД
-        for i in self.ship_coordinates:
+
+
+class Board:
+    H, V, COUNT, icons = 7, 8, 0, ["| .", "| ■", "| X"]
+
+    def __init__(self, displayed_ships=False):
+        self.displayed_ships = displayed_ships
+        self.field = [[f"| 0"] * 7 for _ in range(1, 8)]
+        self.count_shoots = 0
+        self.placement_ships = []
+        self.busy_pips_around = Ships.square_around(self.placement_ships)
+
+    def set_coordinates(self, ships_tuple):
+        self.placement_ships = ships_tuple
+        for i in ships_tuple:
             self.battleship_printing(i)
+        return self.placement_ships
 
     def battleship_printing(self, coor):  # Назначениекординат #ВРЕМЕННЫЙ ВЫВОД
         x, y = map(int, coor)
-        self.field[x][y] = f"| X"
+        self.field[x][y] = f"| ■"
 
-    def vyvod(self):  # ВРЕМЕННЫЙ ВЫВОД
+    def __str__(self):  # ВРЕМЕННЫЙ ВЫВОД
         print("___________________________")
-        print("\n______Поле Игрока_____")
         print("    1   2   3   4   5   6")
-        # specialHandling =
         for i in range(1, 7):
             tas = self.field[i]
+            # print("tas", tas, self.displayed_ships)
+            if self.displayed_ships:
+                pass
+                # print("tas", tas)
+                # tas = tas.replace("■", "O")
             self.field[i][0] = i
             print(*self.field[i], "|")
             if tas[0] != "| 0 ":
                 continue
-        return self.field
+        return str(self.field)
+
+    @staticmethod
+    def input_error(coordinates):
+        while True:
+            if len(coordinates) != 2:
+                print("Введите кординаты в формате (1 1) через пробел!")
+                return False
+            if not (coordinates[0].isdigit() and coordinates[1].isdigit()):
+                print("Подсказка: При вводе кординат,используются только цифры")
+                return False
+            xp, yp = map(int, coordinates)
+            if (xp not in range(1, 7)) or (yp not in range(1, 7)):
+                print("Подсказка: Введите кординаты цифрами от 1 до 6")
+                return False
+            else:
+                return [xp, yp]
+
+    def square_printing(self, coordinates):
+        for i in coordinates:
+            square = Ships.square_around(i)
+            for j in square:
+                self.field[j[0]][j[1]] = self.icons[0]
+        for k in self.busy_pips_around:
+            self.field[k[0]][k[1]] = self.icons[2]
+
+    def shot(self, coordinates):
+        print(coordinates, "Координаты на входе шоот")
+        x, y = int(coordinates[0]), int(coordinates[1])
+        if coordinates in self.busy_pips_around:
+            raise ValueError
+        else:
+            print("added coord", self.busy_pips_around)
+            self.busy_pips_around.append([x, y])
+        # for coordinates in self.busy_pips_around:
+        print("@@@", [x, y], "placemenet", self.placement_ships, [x, y] in self.placement_ships,
+              len(self.placement_ships))
+        if [x, y] in self.placement_ships:
+            self.count_shoots += 1
+            if all((self.placement_ships[0] in self.busy_pips_around, self.placement_ships[1] in self.busy_pips_around,
+                    self.placement_ships[2] in self.busy_pips_around)):
+                self.square_printing(
+                    [[self.placement_ships[0], self.placement_ships[1], self.placement_ships[2]]])
+            if all((
+                    self.placement_ships[3] in self.busy_pips_around,
+                    self.placement_ships[4] in self.busy_pips_around)):
+                self.square_printing([[self.placement_ships[3], self.placement_ships[4]]])
+            if all((
+                    self.placement_ships[5] in self.busy_pips_around,
+                    self.placement_ships[6] in self.busy_pips_around)):
+                self.square_printing([[self.placement_ships[5], self.placement_ships[6]]])
+            if self.placement_ships[7] in self.busy_pips_around:
+                self.square_printing([[self.placement_ships[7]]])
+            if self.placement_ships[8] in self.busy_pips_around:
+                self.square_printing([[self.placement_ships[8]]])
+            if self.placement_ships[9] in self.busy_pips_around:
+                self.square_printing([[self.placement_ships[9]]])
+            if self.placement_ships[10] in self.busy_pips_around:
+                self.square_printing([[self.placement_ships[10]]])
+            self.field[int(x)][int(y)] = self.icons[2]
+            print("Корабль ранен!", self.count_shoots)
+            return self.placement_ships
+        else:
+            print(coordinates, "mimo", x, y, self.field[int(x)][int(y)])
+            self.field[int(x)][int(y)] = self.icons[0]
+            print("Мимо 😉*", self.count_shoots)
+            return False
+
+            # while опрос выстрела пока не True
+            # elif mimo
+            # elif popal
+
+    def begin(self):
+        self.busy_pips_around = []
 
 
-a = Ships()
+class PlayerMoves:
+    def __init__(self, player1, player2):
+        self.player1 = player1
+        self.player2 = player2
+
+    def ask(self):
+        print(self)
+        raise NotImplementedError()
+
+    def coordinates(self):
+        raise Exception
+
+    def move(self):
+        while True:
+            try:
+                actually_mov = self.player2.shot(self.coordinates())
+            except ValueError:
+                print('Сюда уже стреляли')
+                actually_mov = self.move()
+            return actually_mov
+
+class Bot(PlayerMoves):
+    def coordinates(self):
+        sleep(1)
+        print("Робот думает...")
+        coordinates = [randint(1, 6), randint(1, 6)]
+        return coordinates
 
 
-def call():
-    # for i in range(1, 200):
-    for i in range(1, 1900):
-        a.coordinates_setter([random.randint(1, 6), random.randint(1, 6)])
-        print(a.check_ship)
-    a.set_cordinats()  # ВРЕМЕННЫЙ ВЫВОД
-    a.vyvod()  # ВРЕМЕННЫЙ ВЫВОД
+class Player(PlayerMoves):
+
+    def coordinates(self):
+        # try:
+        #     coordinates = Board.input_error(input(f'Введите координаты выстрела: ').split())
+        # except ValueError:
+        #     print('Сюда уже стреляли')
+        #     coordinates = self.coordinates()
+        # return coordinates
+
+        while True:
+            coordinates = Board.input_error(input(f'Введите координаты выстрела: ').split())
+            if coordinates:
+                return coordinates
+            else:
+                continue
 
 
-call()
+class MainGame:
+    def __init__(self):
+        self.call_count = int(input("Для автоматического расположения кораблей нажмите '0'/ для ручного расположения 1: "))
+        player_board = self.create_board()
+        self.call_count = 0
+        bot_board = self.create_board()
+        bot_board.displayed_ships = True
+        self.player = Bot(bot_board, player_board)
+        self.bot = Player(player_board, bot_board)
+
+    def create_board(self):
+        user_filed = None
+
+        while user_filed is None:
+            user_filed = self.call()
+        return user_filed
+
+    def call(self):
+        user_field = Board()
+        user_field.begin()
+        ships_placement = Ships()
+        ships_name = ["трёхпалубного", "двухпалубного", "двухпалубного", "однопалубного", "однопалубного",
+                      "однопалубного", "однопалубного", "однопалубного"]
+        while True:
+            if ships_placement and len(ships_placement.ship_coordinates_getter()) == 11:
+                print("Breakpoint", ships_placement.ship_coordinates_getter())
+                user_field.set_coordinates(ships_placement.ship_coordinates_getter())
+                return user_field
+            if self.call_count:
+                coordinates = Board.input_error(input(f'Введите координаты для расположения вашего {ships_name[ships_placement.count_ships]} корабля: ').split())
+                if coordinates:
+                    user_field.field[coordinates[0]][coordinates[1]] = user_field.icons[1]
+                    ships_placement.coordinates_setter(coordinates)
+                else:
+                    continue
+            else:
+                ships_placement.coordinates_setter([randint(1, 6), randint(1, 6)])
+
+
+    def game(self):
+        num = randint(0, 1)
+        while True:
+            print("num:", num)
+            print("-" * 20)
+            print("Доска пользователя:")
+            print(self.player.player2)
+            print("-" * 20)
+            print("Доска компьютера:")
+            print(self.bot.player2)
+            if num:
+                print("-" * 20)
+                print("Ходит пользователь!")
+                placement = self.bot.move()
+                if placement:
+                    num = 1
+                else:
+                    num = 0
+            else:
+                print("-" * 20)
+                print("Ходит компьютер!")
+                placement = self.player.move()
+                if placement:
+                    num = 0
+                else:
+                    num = 1
+            if not placement:
+                continue
+            if self.bot.player2.count_shoots == 11:
+                print("-" * 20)
+                print("Пользователь выиграл!")
+                break
+
+            if self.player.player2.count_shoots == 11:
+                print("-" * 20)
+                print("Компьютер выиграл!")
+                break
+
+
+def new_game():
+    while True:
+        a = MainGame()
+        a.game()
+        if input("Для начала новой игры нажмите n: ") == "n":
+            continue
+        else:
+            break
+new_game()
