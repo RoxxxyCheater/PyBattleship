@@ -36,7 +36,6 @@ class Ships:
         if ship_coordinates:
             square_around_point = []
             for i in ship_coordinates:
-                print(ship_coordinates, "ship_coordinates")
                 print(i)
                 x, y = i[0], i[1]
                 print(x, y, i)
@@ -50,13 +49,32 @@ class Ships:
                             square_around_point.append([xj, yi])
                         else:
                             pass
+            print(ship_coordinates, "ship_coordinates")
             print("square_around_point", square_around_point)
             return square_around_point
 
+    def printing_field(self):  # Проверить теневое имя
+        print("___________________________")
+        print("\n______Поле Игрока_____")
+        print("    1   2   3   4   5   6")
+        for i in range(1, 7):
+            tas = self.field[i]
+            self.field[i][0] = i
+            print(*self.field[i], "|")
+            if tas[0] != "| 0 ":
+                continue
+        print("\n______Поле соперника_____")
+        print("    1   2   3   4   5   6")
+        for i in range(1, 7):
+            tas = self.backfield[i]
+            self.backfield[i][0] = i
+            print(*self.backfield[i], "|")
+            if tas[0] != "| 0 ":
+                continue
+
     def check_ship(self):
-        if self.coordinates in self.busy_pips or self.coordinates in self.ship_coordinates:
+        if self.coordinates in self.ship_coordinates:
             return False  # Убрать, с помощью написания не повторения координат
-        # print(self.coordinates in self.ship_coordinates, self.coordinates in self.busy_pips, "fucking shit!!!!!!")
         x, y = map(int, self.coordinates)
         self.ship_coordinates.append(self.coordinates)
         count_shoots_list = [i for sublist in self.ship_coordinates for i in sublist]
@@ -147,97 +165,6 @@ class Ships:
                 self.ship_coordinates.pop()
                 break
 
-    # @property
-    # def battleship(self):
-
-    #     ships_count = 0,
-    #     ships_coordinates = []
-    #     while True:
-    #         if self.player_name == "Противник":
-    #             self.coordinates = self.bot_coordinates()
-    #             print(self.coordinates, 'if self.name == "Противник"')
-    #         else:
-    #             self.coordinates = self.user_coordinates()
-    #             print(self.coordinates, 'if self.name == "USER"')
-    #             b.printing_field()
-    #         print(self.count_shoots, self.name)
-    #         self.count_shoots.append(self.coordinates)
-    #         print(self.count_shoots, "после добавления")
-    #         backfield_x = [i for sub in self.backfield for i in sub]
-    #         count_x = sum(True for i in backfield_x if i == '| X')
-    #         if len(self.count_shoots) < 4:
-    #             if self.get_ship_placement():
-    #                 if self.check_ship():
-    #                     print(self.coordinates)
-    #                 if len(self.count_shoots) == 3:
-    #                     ships_count += 1
-    #                     continue
-    #                 else:
-    #                     print(
-    #                         f"{self.name}, Для заполнения , {ships_name} корабля заполните три клетки подряд  "
-    #                         f" с одинаковым цифровым значением то горизонтали или вертикали")
-    #         elif len(self.count_shoots) < 8:
-    #             if self.get_ship_placement():
-    #                 if self.check_ship():
-    #                     b.set_coordinates()
-    #                     b.back_field_setter_set()
-    #                 if len(self.count_shoots) == 5:
-    #                     ships_count += 1
-    #                     continue
-    #                 if len(self.count_shoots) == 7:
-    #                     b.back_field_setter_set()
-    #                     ships_count += 1
-    #                     continue
-    #                 else:
-    #                     print(
-    #                         f"{self.name}, Для заполнения,{ships_name} корабля заполните 2 клетки подряд с одинаковым "
-    #                         f"цифровым значением то горизонтали или вертикали")
-    #             else:
-    #                 self.count_shoots.pop(-1)
-    #                 continue
-    #         elif len(self.count_shoots) < 11 and count_x < 36:
-    #             if self.get_ship_placement():
-    #                 if self.check_ship():
-    #                     b.set_coordinates()
-    #                     b.back_field_setter_set()
-    #                     ships_count += 1
-    #                     continue
-    #                 elif len(self.count_shoots) == range(8, 12):
-    #                     b.back_field_setter_set()
-    #                     pass
-    #                 else:
-    #                     print(
-    #                         f"{self.name}, Для заполнения , {ships_name} корабля заполните клетки "
-    #                         f"цифровым значением то горизонтали или вертикали")
-    #             else:
-    #                 print("Siuda")
-    #                 self.count_shoots.pop(-1)
-    #                 continue
-    #         elif len(self.count_shoots) == 11 and self.get_ship_placement():
-    #             print("Rasstanovka okonchena", self.count_shoots)
-    #             b.set_coordinates()
-    #             ships_count += 1
-    #             b.back_field_setter_set()
-    #             return self.count_shoots
-    #         elif len(self.count_shoots) == 11 and count_x < 36:
-    #             print(f"Кординаты {len(self.count_shoots)} клетки не прошли проверку,повторите ввод")
-    #             self.count_shoots.pop(-1)
-    #         else:
-    #             print(
-    #                 "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-    #             print("При данном расположении кораблей невозможно продолжить игру, начните расстановку заново")
-    #             print(
-    #                 "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-    #             return False
-
-    # a = Ships([2,1])
-    # b = Ships([5,5])
-    # c = Ships([3,2])
-    # a.check_ship()
-    # b.check_ship()
-    # c.check_ship()
-
-
 class Board:
     H, V, COUNT, icons = 7, 8, 0, ["| .", "| ■", "| X"]
 
@@ -273,6 +200,7 @@ class Board:
             if tas[0] != "| 0 ":
                 continue
         return str(self.field)
+
 
     @staticmethod
     def input_error(coordinates):
